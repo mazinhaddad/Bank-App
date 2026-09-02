@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bank Ideas
 
-## Getting Started
+Internal platform for employees to submit, browse, and filter ideas for improving the bank.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Submit an idea with a title, short description, and category
+- Feed/card layout showing all submitted ideas
+- Filter ideas by category
+- Ideas are stored in Supabase and persist across refreshes
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+   ```bash
+   npm install
+   ```
 
-## Learn More
+2. Create a Supabase project at [supabase.com](https://supabase.com).
 
-To learn more about Next.js, take a look at the following resources:
+3. In the Supabase SQL editor, run [`supabase/schema.sql`](supabase/schema.sql) to create the `ideas` table and its row-level security policies.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. Copy `.env.local.example` to `.env.local` and fill in your project's URL and anon key (Project Settings → API):
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   ```bash
+   cp .env.local.example .env.local
+   ```
 
-## Deploy on Vercel
+5. Run the dev server:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   npm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+6. Open [http://localhost:3000](http://localhost:3000), submit an idea, and refresh the page to confirm it's still there.
+
+## Notes
+
+- The `ideas` table has row-level security enabled with public read/insert policies, since this v1 has no authentication. Tighten these policies before adding user accounts.
+- Categories are defined in [`src/lib/categories.ts`](src/lib/categories.ts).
