@@ -8,6 +8,7 @@ Internal platform for employees to submit, browse, and filter ideas for improvin
 - Feed/card layout showing all submitted ideas
 - Filter ideas by category
 - Ideas are stored in Supabase and persist across refreshes
+- Leave comments on an idea to discuss or give feedback
 
 ## Setup
 
@@ -19,7 +20,7 @@ Internal platform for employees to submit, browse, and filter ideas for improvin
 
 2. Create a Supabase project at [supabase.com](https://supabase.com).
 
-3. In the Supabase SQL editor, run [`supabase/schema.sql`](supabase/schema.sql) to create the `ideas` table and its row-level security policies.
+3. In the Supabase SQL editor, run [`supabase/schema.sql`](supabase/schema.sql) to create the `ideas` table and its row-level security policies, then run any files under [`supabase/migrations/`](supabase/migrations) in order.
 
 4. Copy `.env.local.example` to `.env.local` and fill in your project's URL and anon key (Project Settings → API):
 

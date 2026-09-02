@@ -31,3 +31,10 @@ export type Idea = {
   category: string;
   created_at: string;
 };
+
+export type Comment = {
+  id: string;
+  idea_id: string;
+  body: string;
+  created_at: string;
+};

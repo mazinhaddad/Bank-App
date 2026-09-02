@@ -36,3 +36,25 @@ export async function createIdea(
   revalidatePath("/");
   return { error: null, success: true };
 }
+
+export async function addComment(
+  ideaId: string,
+  body: string
+): Promise<{ error: string | null }> {
+  const trimmed = body.trim();
+
+  if (!trimmed) {
+    return { error: "Comment can't be empty." };
+  }
+
+  const { error } = await supabase
+    .from("comments")
+    .insert({ idea_id: ideaId, body: trimmed });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/");
+  return { error: null };
+}
