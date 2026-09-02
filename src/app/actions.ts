@@ -38,6 +38,39 @@ export async function createIdea(
   return { error: null, success: true };
 }
 
+export async function upvoteIdea(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc("increment_upvotes", { idea_id: id });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/");
+  return { error: null };
+}
+
+export async function addComment(
+  ideaId: string,
+  body: string
+): Promise<{ error: string | null }> {
+  const trimmed = body.trim();
+
+  if (!trimmed) {
+    return { error: "Comment can't be empty." };
+  }
+
+  const { error } = await supabase
+    .from("comments")
+    .insert({ idea_id: ideaId, body: trimmed });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/");
+  return { error: null };
+}
+
 export async function updateIdeaStatus(
   id: string,
   status: string
