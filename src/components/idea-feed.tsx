@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { addComment, upvoteIdea } from "@/app/actions";
+import { addComment, updateIdeaStatus, upvoteIdea } from "@/app/actions";
 import { CATEGORIES } from "@/lib/categories";
+import { STATUSES, type Status } from "@/lib/statuses";
 import type { Comment, Idea } from "@/lib/supabase";
 
 function formatDate(iso: string) {
@@ -18,6 +19,38 @@ function CategoryBadge({ category }: { category: string }) {
     <span className="inline-flex items-center rounded-full bg-nbb-gold/15 px-2.5 py-0.5 text-xs font-medium text-nbb-gold-dark">
       {category}
     </span>
+  );
+}
+
+const STATUS_STYLES: Record<Status, string> = {
+  Submitted: "bg-black/[0.06] text-black/60",
+  "Under Review": "bg-nbb-gold/15 text-nbb-gold-dark",
+  Approved: "bg-blue-500/10 text-blue-700",
+  Implemented: "bg-green-500/10 text-green-700",
+};
+
+function StatusSelect({ ideaId, status }: { ideaId: string; status: string }) {
+  const [isPending, startTransition] = useTransition();
+  const style = STATUS_STYLES[status as Status] ?? STATUS_STYLES.Submitted;
+
+  return (
+    <select
+      value={status}
+      disabled={isPending}
+      onChange={(e) => {
+        const next = e.target.value;
+        startTransition(async () => {
+          await updateIdeaStatus(ideaId, next);
+        });
+      }}
+      className={`rounded-full border-none px-2.5 py-0.5 text-xs font-medium outline-none disabled:cursor-not-allowed disabled:opacity-60 ${style}`}
+    >
+      {STATUSES.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
   );
 }
 
@@ -169,7 +202,10 @@ export function IdeaFeed({
             >
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold leading-snug">{idea.title}</h3>
-                <CategoryBadge category={idea.category} />
+                <div className="flex flex-shrink-0 items-center gap-1.5">
+                  <CategoryBadge category={idea.category} />
+                  <StatusSelect ideaId={idea.id} status={idea.status} />
+                </div>
               </div>
               <p className="text-sm text-black/70">{idea.description}</p>
               <div className="flex items-center justify-between pt-1">

@@ -10,6 +10,7 @@ Internal platform for employees to submit, browse, and filter ideas for improvin
 - Ideas are stored in Supabase and persist across refreshes
 - Upvote ideas to surface the ones worth attention
 - Leave comments on an idea to discuss or give feedback
+- Track each idea's status: Submitted, Under Review, Approved, or Implemented
 
 ## Setup
 
