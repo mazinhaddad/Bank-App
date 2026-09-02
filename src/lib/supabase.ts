@@ -32,3 +32,10 @@ export type Idea = {
   created_at: string;
   upvotes: number;
 };
+
+export type Comment = {
+  id: string;
+  idea_id: string;
+  body: string;
+  created_at: string;
+};

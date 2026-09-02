@@ -9,6 +9,7 @@ Internal platform for employees to submit, browse, and filter ideas for improvin
 - Filter ideas by category
 - Ideas are stored in Supabase and persist across refreshes
 - Upvote ideas to surface the ones worth attention
+- Leave comments on an idea to discuss or give feedback
 
 ## Setup
 

@@ -1,9 +1,9 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { upvoteIdea } from "@/app/actions";
+import { addComment, upvoteIdea } from "@/app/actions";
 import { CATEGORIES } from "@/lib/categories";
-import type { Idea } from "@/lib/supabase";
+import type { Comment, Idea } from "@/lib/supabase";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", {
@@ -42,7 +42,89 @@ function UpvoteButton({ ideaId, upvotes }: { ideaId: string; upvotes: number }) 
   );
 }
 
-export function IdeaFeed({ ideas }: { ideas: Idea[] }) {
+function CommentsSection({
+  ideaId,
+  comments,
+}: {
+  ideaId: string;
+  comments: Comment[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [draft, setDraft] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const body = draft;
+    startTransition(async () => {
+      const result = await addComment(ideaId, body);
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setError(null);
+        setDraft("");
+      }
+    });
+  }
+
+  return (
+    <div className="border-t border-black/10 pt-2">
+      <button
+        type="button"
+        onClick={() => setIsOpen((open) => !open)}
+        className="text-xs font-medium text-nbb-red-dark hover:underline"
+      >
+        {isOpen ? "Hide" : "Show"} comments ({comments.length})
+      </button>
+
+      {isOpen && (
+        <div className="mt-2 flex flex-col gap-2">
+          {comments.length > 0 && (
+            <ul className="flex flex-col gap-1.5">
+              {comments.map((comment) => (
+                <li
+                  key={comment.id}
+                  className="rounded-md bg-black/[0.03] px-2.5 py-1.5 text-xs text-black/70"
+                >
+                  {comment.body}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-1.5">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="Add a comment…"
+              rows={2}
+              maxLength={500}
+              required
+              className="resize-none rounded-md border border-black/15 bg-transparent px-2.5 py-1.5 text-xs outline-none focus:border-nbb-gold-dark"
+            />
+            {error && <p className="text-xs text-nbb-red">{error}</p>}
+            <button
+              type="submit"
+              disabled={isPending || !draft.trim()}
+              className="self-start rounded-md bg-nbb-red px-3 py-1 text-xs font-medium text-white transition hover:bg-nbb-red-dark disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isPending ? "Posting…" : "Post comment"}
+            </button>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function IdeaFeed({
+  ideas,
+  commentsByIdea,
+}: {
+  ideas: Idea[];
+  commentsByIdea: Record<string, Comment[]>;
+}) {
   const [activeCategory, setActiveCategory] = useState<string>("All");
 
   const filteredIdeas = useMemo(() => {
@@ -90,12 +172,16 @@ export function IdeaFeed({ ideas }: { ideas: Idea[] }) {
                 <CategoryBadge category={idea.category} />
               </div>
               <p className="text-sm text-black/70">{idea.description}</p>
-              <div className="mt-auto flex items-center justify-between pt-1">
+              <div className="flex items-center justify-between pt-1">
                 <p className="text-xs text-black/40">
                   Submitted {formatDate(idea.created_at)}
                 </p>
                 <UpvoteButton ideaId={idea.id} upvotes={idea.upvotes} />
               </div>
+              <CommentsSection
+                ideaId={idea.id}
+                comments={commentsByIdea[idea.id] ?? []}
+              />
             </article>
           ))}
         </div>
