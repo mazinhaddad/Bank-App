@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { supabase } from "@/lib/supabase";
 import { CATEGORIES } from "@/lib/categories";
+import { STATUSES } from "@/lib/statuses";
 
 export type CreateIdeaState = {
   error: string | null;
@@ -35,4 +36,22 @@ export async function createIdea(
 
   revalidatePath("/");
   return { error: null, success: true };
+}
+
+export async function updateIdeaStatus(
+  id: string,
+  status: string
+): Promise<{ error: string | null }> {
+  if (!STATUSES.includes(status as (typeof STATUSES)[number])) {
+    return { error: "Please choose a valid status." };
+  }
+
+  const { error } = await supabase.from("ideas").update({ status }).eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/");
+  return { error: null };
 }

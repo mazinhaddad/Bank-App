@@ -30,4 +30,5 @@ export type Idea = {
   description: string;
   category: string;
   created_at: string;
+  status: string;
 };
