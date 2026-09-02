@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { addComment } from "@/app/actions";
+import { addComment, upvoteIdea } from "@/app/actions";
 import { CATEGORIES } from "@/lib/categories";
 import type { Comment, Idea } from "@/lib/supabase";
 
@@ -18,6 +18,27 @@ function CategoryBadge({ category }: { category: string }) {
     <span className="inline-flex items-center rounded-full bg-nbb-gold/15 px-2.5 py-0.5 text-xs font-medium text-nbb-gold-dark">
       {category}
     </span>
+  );
+}
+
+function UpvoteButton({ ideaId, upvotes }: { ideaId: string; upvotes: number }) {
+  const [isPending, startTransition] = useTransition();
+
+  return (
+    <button
+      type="button"
+      disabled={isPending}
+      onClick={() =>
+        startTransition(async () => {
+          await upvoteIdea(ideaId);
+        })
+      }
+      className="inline-flex items-center gap-1.5 rounded-full border border-nbb-red/30 px-3 py-1 text-sm font-medium text-nbb-red-dark transition hover:border-nbb-red hover:bg-nbb-red/5 disabled:cursor-not-allowed disabled:opacity-60"
+      aria-label={`Upvote (${upvotes} votes)`}
+    >
+      <span aria-hidden>▲</span>
+      {upvotes}
+    </button>
   );
 }
 
@@ -151,9 +172,12 @@ export function IdeaFeed({
                 <CategoryBadge category={idea.category} />
               </div>
               <p className="text-sm text-black/70">{idea.description}</p>
-              <p className="text-xs text-black/40">
-                Submitted {formatDate(idea.created_at)}
-              </p>
+              <div className="flex items-center justify-between pt-1">
+                <p className="text-xs text-black/40">
+                  Submitted {formatDate(idea.created_at)}
+                </p>
+                <UpvoteButton ideaId={idea.id} upvotes={idea.upvotes} />
+              </div>
               <CommentsSection
                 ideaId={idea.id}
                 comments={commentsByIdea[idea.id] ?? []}

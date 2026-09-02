@@ -30,6 +30,7 @@ export type Idea = {
   description: string;
   category: string;
   created_at: string;
+  upvotes: number;
 };
 
 export type Comment = {

@@ -37,6 +37,17 @@ export async function createIdea(
   return { error: null, success: true };
 }
 
+export async function upvoteIdea(id: string): Promise<{ error: string | null }> {
+  const { error } = await supabase.rpc("increment_upvotes", { idea_id: id });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/");
+  return { error: null };
+}
+
 export async function addComment(
   ideaId: string,
   body: string
